@@ -5,10 +5,9 @@ import Search from "../components/Search";
 import { SearchBar } from "react-native-elements";
 import { Picker } from "@react-native-picker/picker";
 import rescue_agencies from "../components/firebaseinit";
-import {
-  fetchRescueAgencies,
-  addAgencyRequest,
-} from "../components/firebaseinit";
+import { fetchUserRequests } from "../components/firebaseinit";
+import { useIsFocused } from "@react-navigation/native";
+
 import {
   StyleSheet,
   Text,
@@ -22,134 +21,56 @@ import {
 } from "react-native";
 
 const cards = () => {
-  // const initialRescueAgencies = [
-  //   {
-  //     id: 1,
-  //     name: "Agency A",
-  //     disaster: "Earthquake",
-  //     location:
-  //       "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
-  //     numberOfTeams: 5,
-  //     contact: 9551398396,
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Agency B",
-  //     disaster: "Flood",
-  //     location:
-  //       "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
-  //     numberOfTeams: 3,
-  //     contact: 9551398396,
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Agency B",
-  //     disaster: "Flood",
-  //     location: "My House",
-  //     numberOfTeams: 3,
-  //     contact: 9551398396,
-  //   },
-  //   {
-  //     id: 4,
-  //     name: "Agency B",
-  //     disaster: "Flood",
-  //     location:
-  //       "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
-  //     numberOfTeams: 3,
-  //     contact: 9551398396,
-  //   },
-  //   {
-  //     id: 5,
-  //     name: "Agency B",
-  //     disaster: "Flood",
-  //     location:
-  //       "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
-  //     numberOfTeams: 3,
-  //     contact: 9551398396,
-  //   },
-  //   {
-  //     id: 6,
-  //     name: "Agency B",
-  //     disaster: "Flood",
-  //     location:
-  //       "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
-  //     numberOfTeams: 3,
-  //     contact: 9551398396,
-  //   },
-  //   {
-  //     id: 7,
-  //     name: "Agency B",
-  //     disaster: "Flood",
-  //     location:
-  //       "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
-  //     numberOfTeams: 3,
-  //     contact: 9551398396,
-  //   },
-  //   {
-  //     id: 8,
-  //     name: "Agency B",
-  //     disaster: "Flood",
-  //     location:
-  //       "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
-  //     numberOfTeams: 3,
-  //     contact: 9551398396,
-  //   },
-  //   {
-  //     id: 9,
-  //     name: "Agency B",
-  //     disaster: "Flood",
-  //     location:
-  //       "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
-  //     numberOfTeams: 3,
-  //     contact: 9551398396,
-  //   },
-  //   // Add more agencies as needed
-  // ];
-
-  const [allRescueAgencies, setAllRescueAgencies] = useState([]);
-  const [rescueAgencies, setRescueAgencies] = useState([]);
+  const isFocused = useIsFocused();
+  const [allRequests, setAllRequests] = useState([]);
+  const [userRequests, setUserRequests] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedDisaster, setSelectedDisaster] = useState("All");
   const [loading, setLoading] = useState(true);
-  const [requesting, setRequesting] = useState(false);
-  // Fetch data or initialize it as needed
-  useEffect(() => {
-    const fetchData = async () => {
-      // Fetch the rescue agencies and wait for the result
-      const agencies = await fetchRescueAgencies();
 
-      setAllRescueAgencies(agencies);
-      setRescueAgencies(agencies);
-      setLoading(false);
-    };
-    fetchData();
+  const fetchData = async () => {
+    setLoading(true); // Set loading to true while fetching data
+    const requests = await fetchUserRequests();
+    setAllRequests(requests);
+    setUserRequests(requests);
+    setLoading(false); // Set loading back to false when data is fetched
+  };
+
+  useEffect(() => {
+    fetchData(); // Fetch data when the component initially mounts
   }, []);
+
+  useEffect(() => {
+    if (isFocused) {
+      fetchData(); // Fetch data again when the screen gains focus
+    }
+  }, [isFocused]);
 
   const searchFilterFunction = (text) => {
     setSearch(text);
     if (text === "") {
       // If the search text is empty, show all agencies of the selected disaster type
-      filterAgenciesByDisaster(selectedDisaster);
+      filterRequestsbyDisaster(selectedDisaster);
     } else {
-      const newData = rescueAgencies.filter((agency) => {
-        const agencyData =
-          `${agency.name} ${agency.location} ${agency.contact} ${agency.address} ${agency.disaster}`.toUpperCase();
+      const newData = userRequests.filter((request) => {
+        const requestData =
+          `${request.name} ${request.location} ${request.contact} ${request.address} ${agency.disaster}`.toUpperCase();
         const textData = text.toUpperCase();
-        return agencyData.includes(textData);
+        return requestData.includes(textData);
       });
-      setRescueAgencies(newData);
+      setUserRequests(newData);
     }
   };
 
-  const filterAgenciesByDisaster = (disaster) => {
+  const filterRequestsbyDisaster = (disaster) => {
     setSelectedDisaster(disaster);
     if (disaster === "All") {
-      setRescueAgencies(allRescueAgencies);
+      setUserRequests(allRequests);
     } else {
-      const filteredAgencies = allRescueAgencies.filter((agency) =>
-        agency.disaster.includes(disaster)
+      const filteredAgencies = allRequests.filter((requests) =>
+        requests.disaster.includes(disaster)
       );
-      setRescueAgencies(filteredAgencies);
+      setUserRequests(filteredAgencies);
     }
   };
 
@@ -173,30 +94,32 @@ const cards = () => {
     );
   };
 
-  const handleRequestAlert = async (agency) => {
-    try {
-      setLoading(true); // Set requesting to true when starting the request
-
-      // Call the addAgencyRequest function, which handles the request and returns a promise
-      await addAgencyRequest(agency);
-
-      // After the request is complete, set requesting back to false
-      setLoading(false);
-
-      alert(`Request sent to ${agency.name}`);
-    } catch (error) {
-      console.error("Error sending request alert:", error);
-      setLoading(false); // Set requesting back to false in case of an error
-    }
+  const handleRequestAlert = (requests) => {
+    // Implement the logic to send a request alert to the requests here
+    // You can use any notification service or API for this purpose
+    // For example, you might send a push notification to the requests's app or server
+    // You can also display a confirmation message to the user
+    alert(`Request sent to ${requests.name}`);
   };
 
   const renderItems = ({ item }) => (
     <Card>
       <View>
-        <View style={{}}>
-          <Image source={require("../../assets/images/download.png")} />
+        <View>
+          <Text
+            style={{
+              color: "red",
+              fontWeight: "bold",
+              borderColor: "red",
+              borderWidth: 1,
+              padding: 5,
+              borderRadius: 5,
+              textAlign: "center",
+            }}
+          >
+            Request Pending
+          </Text>
         </View>
-
         <View>
           <Text
             style={{
@@ -289,20 +212,6 @@ const cards = () => {
               <Text style={{ color: "blue" }}>{item.contact}</Text>
             </TouchableOpacity>
           </Text>
-          <View
-            style={{
-              borderColor: "red",
-              borderWidth: 1,
-              padding: 10,
-              borderRadius: 5,
-            }}
-          >
-            <TouchableOpacity onPress={() => handleRequestAlert(item)}>
-              <View>
-                <Text style={{ color: "red" }}>Request alert</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
     </Card>
@@ -321,7 +230,7 @@ const cards = () => {
         <View style={styles.picker}>
           <Picker
             selectedValue={selectedDisaster}
-            onValueChange={(itemValue) => filterAgenciesByDisaster(itemValue)}
+            onValueChange={(itemValue) => filterRequestsbyDisaster(itemValue)}
             icon
           >
             <Picker.Item label="All Disasters" value="All" />
@@ -337,11 +246,7 @@ const cards = () => {
         </View>
       ) : (
         <SafeAreaView style={styles.contentContainer}>
-          <FlatList
-            data={rescueAgencies}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={renderItems}
-          />
+          <FlatList data={userRequests} renderItem={renderItems} />
         </SafeAreaView>
       )}
       <View style={{ height: 72 }} />
@@ -351,7 +256,7 @@ const cards = () => {
 };
 //       <SafeAreaView style={styles.contentContainer}>
 //         <FlatList
-//           data={rescueAgencies}
+//           data={userRequests}
 //           keyExtractor={(item) => item.id.toString()}
 //           renderItem={renderItems}
 //         />

@@ -12,6 +12,7 @@ export default function TabLayout() {
 
   return (
     <Tabs screenOptions={{
+    
       headerShown: false,
       tabBarStyle: {
         position: "absolute",
@@ -75,8 +76,62 @@ export default function TabLayout() {
               </View>
             )
           }
+        }}/>
+            <Tabs.Screen
+        name="viewrequests"
+        options={{
+          title: "",
+          tabBarIcon: ({ focused }: { focused: boolean }) => {
+            return (
+              <View style={{
+                alignItems: "center",
+                paddingTop: 16,
+                borderTopColor: focused ? COLORS.primary : COLORS.white,
+                borderTopWidth: 2
+              }}>
+                <FontAwesome5
+                  name= "plus-circle" 
+                  size={24}
+                  color={focused ? COLORS.primary : COLORS.black}
+                />
+
+                <Text style={{
+                  fontSize: 14,
+                  color: focused ? COLORS.primary : COLORS.black
+                }}>Requests</Text>
+              </View>
+            )
+          }
+        }}/>
+              <Tabs.Screen
+        name="viewresourcerequest"
+        options={{
+          title: "",
+          tabBarIcon: ({ focused }: { focused: boolean }) => {
+            return (
+              <View style={{
+                alignItems: "center",
+                paddingTop: 16,
+                borderTopColor: focused ? COLORS.primary : COLORS.white,
+                borderTopWidth: 2
+              }}>
+                <FontAwesome5
+                  name="people-arrows" // Replace with the appropriate icon name
+                  size={24}
+                  color={focused ? COLORS.primary : COLORS.black}
+                />
+
+                <Text style={{
+                  fontSize: 14,
+                  color: focused ? COLORS.primary : COLORS.black
+                }}>Resource requests</Text>
+              </View>
+            )
+          }
         }}
       />
+      
+
     </Tabs>
   )
 }
