@@ -5,7 +5,10 @@ import Search from "../components/Search";
 import { SearchBar } from "react-native-elements";
 import { Picker } from "@react-native-picker/picker";
 import rescue_agencies from "../components/firebaseinit";
-import { fetchUserRequests } from "../components/firebaseinit";
+import {
+  fetchUserRequests,
+  deleteAgencyRequest,
+} from "../components/firebaseinit";
 import { useIsFocused } from "@react-navigation/native";
 
 import {
@@ -94,12 +97,22 @@ const cards = () => {
     );
   };
 
-  const handleRequestAlert = (requests) => {
-    // Implement the logic to send a request alert to the requests here
-    // You can use any notification service or API for this purpose
-    // For example, you might send a push notification to the requests's app or server
-    // You can also display a confirmation message to the user
-    alert(`Request sent to ${requests.name}`);
+  const handleCancelRequest = async (agency) => {
+    try {
+      setLoading(true); // Set requesting to true when starting the request
+
+      // Call the addAgencyRequest function, which handles the request and returns a promise
+      await deleteAgencyRequest(agency);
+
+      // After the request is complete, set requesting back to false
+      setLoading(false);
+
+      alert(`${agency.name} request cancelled!`);
+      fetchData();
+    } catch (error) {
+      console.error("Error sending request alert:", error);
+      setLoading(false); // Set requesting back to false in case of an error
+    }
   };
 
   const renderItems = ({ item }) => (
@@ -212,6 +225,19 @@ const cards = () => {
               <Text style={{ color: "blue" }}>{item.contact}</Text>
             </TouchableOpacity>
           </Text>
+          <TouchableOpacity onPress={() => handleCancelRequest(item)}>
+            <View
+              style={{
+                backgroundColor: "#f62e2e",
+                padding: 10,
+                borderRadius: 5,
+              }}
+            >
+              <Text style={{ color: "white", textAlign: "center" }}>
+                Cancel
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
       </View>
     </Card>
@@ -243,6 +269,11 @@ const cards = () => {
       {loading ? ( // Display loading indicator if loading is true
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#000000" />
+        </View>
+      ) : userRequests.length === 0 ? (
+        // Display "No Requests" when userRequests is empty
+        <View style={styles.noRequestsContainer}>
+          <Text style={styles.noRequestsText}>No agency requests</Text>
         </View>
       ) : (
         <SafeAreaView style={styles.contentContainer}>
@@ -304,6 +335,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  noRequestsContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  noRequestsText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "gray",
   },
 });
 

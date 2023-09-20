@@ -190,6 +190,10 @@ const cards = () => {
     }
   };
 
+  const handleGeneralRequest = () => {
+    alert(`Request sent to nearby Agencies`);
+  };
+
   const renderItems = ({ item }) => (
     <Card>
       <View>
@@ -330,6 +334,20 @@ const cards = () => {
             {/* Add more disaster types as needed */}
           </Picker>
         </View>
+        <TouchableOpacity onPress={() => handleGeneralRequest()}>
+          <View
+            style={{
+              backgroundColor: "#f62e2e",
+              padding: 10,
+              borderRadius: 5,
+              margin: 10,
+            }}
+          >
+            <Text style={{ color: "white", textAlign: "center" }}>
+              Send request to nearby Agencies
+            </Text>
+          </View>
+        </TouchableOpacity>
       </View>
       {loading ? ( // Display loading indicator if loading is true
         <View style={styles.loadingContainer}>

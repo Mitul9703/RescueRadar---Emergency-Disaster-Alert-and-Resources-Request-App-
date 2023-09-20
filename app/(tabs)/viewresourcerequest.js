@@ -5,7 +5,10 @@ import Search from "../components/Search";
 import { SearchBar } from "react-native-elements";
 import { Picker } from "@react-native-picker/picker";
 import rescue_agencies from "../components/firebaseinit";
-import { fetchResourceRequests } from "../components/firebaseinit";
+import {
+  fetchResourceRequests,
+  deleteResourceRequest,
+} from "../components/firebaseinit";
 import { useIsFocused } from "@react-navigation/native";
 
 import {
@@ -95,8 +98,22 @@ const cards = () => {
     );
   };
 
-  const handleRequestAlert = (requests) => {
-    alert(`Request sent to ${requests.name}`);
+  const handleCancelRequest = async (requests) => {
+    try {
+      setLoading(true); // Set requesting to true when starting the request
+
+      // Call the addAgencyRequest function, which handles the request and returns a promise
+      await deleteResourceRequest(requests);
+
+      // After the request is complete, set requesting back to false
+      setLoading(false);
+
+      alert(`${requests.volunteer_name} request cancelled!`);
+      fetchData();
+    } catch (error) {
+      console.error("Error sending request alert:", error);
+      setLoading(false); // Set requesting back to false in case of an error
+    }
   };
 
   const renderItems = ({ item }) => (
@@ -195,6 +212,20 @@ const cards = () => {
               <Text style={{ color: "blue" }}>{item.contact}</Text>
             </TouchableOpacity>
           </Text>
+
+          <TouchableOpacity onPress={() => handleCancelRequest(item)}>
+            <View
+              style={{
+                backgroundColor: "#f62e2e",
+                padding: 10,
+                borderRadius: 5,
+              }}
+            >
+              <Text style={{ color: "white", textAlign: "center" }}>
+                Cancel
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
       </View>
     </Card>
@@ -229,6 +260,11 @@ const cards = () => {
       {loading ? ( // Display loading indicator if loading is true
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#000000" />
+        </View>
+      ) : userRequests.length === 0 ? (
+        // Display "No Requests" when userRequests is empty
+        <View style={styles.noRequestsContainer}>
+          <Text style={styles.noRequestsText}>No resources requested</Text>
         </View>
       ) : (
         <SafeAreaView style={styles.contentContainer}>
@@ -290,6 +326,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  noRequestsContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  noRequestsText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "gray",
   },
 });
 

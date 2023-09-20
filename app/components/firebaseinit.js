@@ -382,6 +382,96 @@ const addResourceRequest = async (agency) => {
   }
 };
 
+const deleteResourceRequest = async (agency) => {
+  try {
+    const db = initializeFirebase();
+    const usersCollectionref = query(
+      collection(db, "users"),
+      where("userid", "==", "Mitul789")
+    );
+
+    // Execute the query and get the resulting documents
+    const querySnapshot = await getDocs(usersCollectionref);
+
+    // Assuming there's only one document with the name "Mitul789,"
+    // you can use the first document in the query results
+    if (!querySnapshot.empty) {
+      const userDoc = querySnapshot.docs[0];
+      const userRef = doc(db, "users", userDoc.id);
+
+      // Find the index of the agency to remove in the "requests" array
+      const agencyIndex = userDoc
+        .data()
+        .resource_requests.findIndex(
+          (req) => req.volunteer_name === agency.volunteer_name
+        );
+
+      if (agencyIndex !== -1) {
+        // Remove the agency from the "requests" array
+        const updatedRequests = [
+          ...userDoc.data().resource_requests.slice(0, agencyIndex),
+          ...userDoc.data().resource_requests.slice(agencyIndex + 1),
+        ];
+
+        // Update the user's document to set the "requests" field to the updated array
+        await updateDoc(userRef, {
+          resource_requests: updatedRequests,
+        });
+
+        // Re-fetch the data to update the component
+      }
+    } else {
+      console.error("User not found with name 'Mitul789'");
+    }
+  } catch (error) {
+    console.error("Error canceling request:", error);
+  }
+};
+
+const deleteAgencyRequest = async (agency) => {
+  try {
+    const db = initializeFirebase();
+    const usersCollectionref = query(
+      collection(db, "users"),
+      where("userid", "==", "Mitul789")
+    );
+
+    // Execute the query and get the resulting documents
+    const querySnapshot = await getDocs(usersCollectionref);
+
+    // Assuming there's only one document with the name "Mitul789,"
+    // you can use the first document in the query results
+    if (!querySnapshot.empty) {
+      const userDoc = querySnapshot.docs[0];
+      const userRef = doc(db, "users", userDoc.id);
+
+      // Find the index of the agency to remove in the "requests" array
+      const agencyIndex = userDoc
+        .data()
+        .agency_requests.findIndex((req) => req.name === agency.name);
+
+      if (agencyIndex !== -1) {
+        // Remove the agency from the "requests" array
+        const updatedRequests = [
+          ...userDoc.data().agency_requests.slice(0, agencyIndex),
+          ...userDoc.data().agency_requests.slice(agencyIndex + 1),
+        ];
+
+        // Update the user's document to set the "requests" field to the updated array
+        await updateDoc(userRef, {
+          agency_requests: updatedRequests,
+        });
+
+        // Re-fetch the data to update the component
+      }
+    } else {
+      console.error("User not found with name 'Mitul789'");
+    }
+  } catch (error) {
+    console.error("Error canceling request:", error);
+  }
+};
+
 export {
   fetchVolunteerResources,
   fetchRescueAgencies,
@@ -389,4 +479,6 @@ export {
   addAgencyRequest,
   fetchResourceRequests,
   addResourceRequest,
+  deleteResourceRequest,
+  deleteAgencyRequest,
 };
