@@ -1,5 +1,5 @@
 
-# Disaster Alert and Resource Request App
+#  RescueRadar - Disaster Alert and Resource Request App
 
 ## Description
 
