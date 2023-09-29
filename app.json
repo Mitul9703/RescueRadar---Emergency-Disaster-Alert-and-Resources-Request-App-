@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "BottomTabNavigation",
-    "slug": "BottomTabNavigation",
+    "name": "VictimVersOne",
+    "slug": "VictimVersOne",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -22,7 +22,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.mitul_789.VictimVersOne"
     },
     "web": {
       "bundler": "metro",
@@ -34,6 +35,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "5c1ef07d-0ecd-41c3-94ef-c220d19cd8f5"
+      }
     }
   }
 }

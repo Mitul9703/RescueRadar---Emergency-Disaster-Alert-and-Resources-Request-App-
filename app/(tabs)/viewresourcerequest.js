@@ -4,10 +4,13 @@ import Card from "../components/Card";
 import Search from "../components/Search";
 import { SearchBar } from "react-native-elements";
 import { Picker } from "@react-native-picker/picker";
+import rescue_agencies from "../components/firebaseinit";
 import {
-  fetchVolunteerResources,
-  addResourceRequest,
+  fetchResourceRequests,
+  deleteResourceRequest,
 } from "../components/firebaseinit";
+import { useIsFocused } from "@react-navigation/native";
+
 import {
   StyleSheet,
   Text,
@@ -21,129 +24,57 @@ import {
 } from "react-native";
 
 const cards = () => {
-  // const initialVolunteers = [
-  //   {
-  //     id: 1,
-  //     volunteer_name: "Person 1",
-  //     type_of_resource: "Food",
-  //     location:
-  //       "Selvi memorial trust ,Pasumpon Muthuramalingam salai, Old chamiyars road, Teynampet, Che, 18",
-
-  //     contact: 9551398396,
-  //   },
-  //   {
-  //     id: 2,
-  //     volunteer_name: "Person 2",
-  //     type_of_resource: "Shelter",
-  //     location:
-  //       "Selvi memorial trust ,Pasumpon Muthuramalingam salai, Old chamiyars road, Teynampet, Che, 18",
-
-  //     contact: 9551398396,
-  //   },
-  //   {
-  //     id: 3,
-  //     volunteer_name: "Person 2",
-  //     type_of_resource: "Clothes",
-  //     location: "My House",
-
-  //     contact: 9551398396,
-  //   },
-  //   {
-  //     id: 4,
-  //     volunteer_name: "Person 2",
-  //     type_of_resource: "Shelter, Food",
-  //     location:
-  //       "Selvi memorial trust ,Pasumpon Muthuramalingam salai, Old chamiyars road, Teynampet, Che, 18",
-  //     numberOfTeams: 3,
-  //     contact: 9551398396,
-  //   },
-  //   {
-  //     id: 5,
-  //     volunteer_name: "Person 2",
-  //     type_of_resource: "Shelter",
-  //     location:
-  //       "Selvi memorial trust ,Pasumpon Muthuramalingam salai, Old chamiyars road, Teynampet, Che, 18",
-
-  //     contact: 9551398396,
-  //   },
-  //   {
-  //     id: 6,
-  //     volunteer_name: "Person 2",
-  //     type_of_resource: "Shelter, Food",
-  //     location:
-  //       "Selvi memorial trust ,Pasumpon Muthuramalingam salai, Old chamiyars road, Teynampet, Che, 18",
-
-  //     contact: 9551398396,
-  //   },
-  //   {
-  //     id: 7,
-  //     volunteer_name: "Person 2",
-  //     type_of_resource: "Shelter",
-  //     location:
-  //       "Selvi memorial trust ,Pasumpon Muthuramalingam salai, Old chamiyars road, Teynampet, Che, 18",
-  //     contact: 9551398396,
-  //   },
-  //   {
-  //     id: 8,
-  //     volunteer_name: "Person 2",
-  //     type_of_resource: "Shelter, Clothes",
-  //     location:
-  //       "Selvi memorial trust ,Pasumpon Muthuramalingam salai, Old chamiyars road, Teynampet, Che, 18",
-  //     contact: 9551398396,
-  //   },
-  //   {
-  //     id: 9,
-  //     volunteer_name: "Person 2",
-  //     type_of_resource: "Clothes",
-  //     location:
-  //       "Selvi memorial trust ,Pasumpon Muthuramalingam salai, Old chamiyars road, Teynampet, Che, 18",
-  //     contact: 9551398396,
-  //   },
-  //   // Add more agencies as needed
-  // ];
-
-  const [allVolunteers, setAllVolunteers] = useState([]);
-  const [volunteers, setVolunteers] = useState([]);
+  const isFocused = useIsFocused();
+  const [allRequests, setAllRequests] = useState([]);
+  const [userRequests, setUserRequests] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedResource, setSelectedResource] = useState("All");
   const [loading, setLoading] = useState(true);
-  // Fetch data or initialize it as needed
-  useEffect(() => {
-    const fetchData = async () => {
-      const volunteerResources = await fetchVolunteerResources();
 
-      setAllVolunteers(volunteerResources);
-      setVolunteers(volunteerResources);
-      setLoading(false);
-    };
-    fetchData();
+  const fetchData = async () => {
+    setLoading(true); // Set loading to true while fetching data
+    const requests = await fetchResourceRequests();
+    console.log(requests);
+    setAllRequests(requests);
+    setUserRequests(requests);
+    setLoading(false); // Set loading back to false when data is fetched
+  };
+
+  useEffect(() => {
+    fetchData(); // Fetch data when the component initially mounts
   }, []);
+
+  useEffect(() => {
+    if (isFocused) {
+      fetchData(); // Fetch data again when the screen gains focus
+    }
+  }, [isFocused]);
 
   const searchFilterFunction = (text) => {
     setSearch(text);
     if (text === "") {
       // If the search text is empty, show all agencies of the selected disaster type
-      filterVolunteersbyResource(selectedResource);
+      filterRequestsbyResource(selectedResource);
     } else {
-      const newData = volunteers.filter((volunteer) => {
+      const newData = userRequests.filter((volunteer) => {
         const volunteerData =
           `${volunteer.volunteer_name} ${volunteer.location} ${volunteer.contact} ${volunteer.type_of_resource}`.toUpperCase();
         const textData = text.toUpperCase();
         return volunteerData.includes(textData);
       });
-      setVolunteers(newData);
+      setUserRequests(newData);
     }
   };
 
-  const filterVolunteersbyResource = (type_of_resource) => {
+  const filterRequestsbyResource = (type_of_resource) => {
     setSelectedResource(type_of_resource);
     if (type_of_resource === "All") {
-      setVolunteers(allVolunteers);
+      setUserRequests(allRequests);
     } else {
-      const filteredAgencies = allVolunteers.filter((volunteer) =>
-        volunteer.type_of_resource.includes(type_of_resource)
+      const filteredResources = allRequests.filter((requests) =>
+        requests.type_of_resource.includes(type_of_resource)
       );
-      setVolunteers(filteredAgencies);
+      setUserRequests(filteredResources);
     }
   };
 
@@ -167,17 +98,18 @@ const cards = () => {
     );
   };
 
-  const handleRequestAlert = async (volunteer) => {
+  const handleCancelRequest = async (requests) => {
     try {
       setLoading(true); // Set requesting to true when starting the request
 
       // Call the addAgencyRequest function, which handles the request and returns a promise
-      await addResourceRequest(volunteer);
+      await deleteResourceRequest(requests);
 
       // After the request is complete, set requesting back to false
       setLoading(false);
 
-      alert(`Request sent to ${volunteer.volunteer_name}`);
+      alert(`${requests.volunteer_name} request cancelled!`);
+      fetchData();
     } catch (error) {
       console.error("Error sending request alert:", error);
       setLoading(false); // Set requesting back to false in case of an error
@@ -187,6 +119,21 @@ const cards = () => {
   const renderItems = ({ item }) => (
     <Card>
       <View>
+        <View>
+          <Text
+            style={{
+              color: "red",
+              fontWeight: "bold",
+              borderColor: "red",
+              borderWidth: 1,
+              padding: 5,
+              borderRadius: 5,
+              textAlign: "center",
+            }}
+          >
+            Request Pending
+          </Text>
+        </View>
         <View>
           <Text
             style={{
@@ -265,20 +212,20 @@ const cards = () => {
               <Text style={{ color: "blue" }}>{item.contact}</Text>
             </TouchableOpacity>
           </Text>
-          <View
-            style={{
-              borderColor: "green",
-              borderWidth: 1,
-              padding: 10,
-              borderRadius: 5,
-            }}
-          >
-            <TouchableOpacity onPress={() => handleRequestAlert(item)}>
-              <View>
-                <Text style={{ color: "green" }}>Request for Resource</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
+
+          <TouchableOpacity onPress={() => handleCancelRequest(item)}>
+            <View
+              style={{
+                backgroundColor: "#f62e2e",
+                padding: 10,
+                borderRadius: 5,
+              }}
+            >
+              <Text style={{ color: "white", textAlign: "center" }}>
+                Cancel
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
       </View>
     </Card>
@@ -299,7 +246,7 @@ const cards = () => {
         <View style={styles.picker}>
           <Picker
             selectedValue={selectedResource}
-            onValueChange={(itemValue) => filterVolunteersbyResource(itemValue)}
+            onValueChange={(itemValue) => filterRequestsbyResource(itemValue)}
             icon
           >
             <Picker.Item label="All Resources" value="All" />
@@ -314,13 +261,14 @@ const cards = () => {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#000000" />
         </View>
+      ) : userRequests.length === 0 ? (
+        // Display "No Requests" when userRequests is empty
+        <View style={styles.noRequestsContainer}>
+          <Text style={styles.noRequestsText}>No resources requested</Text>
+        </View>
       ) : (
         <SafeAreaView style={styles.contentContainer}>
-          <FlatList
-            data={volunteers}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={renderItems}
-          />
+          <FlatList data={userRequests} renderItem={renderItems} />
         </SafeAreaView>
       )}
       <View style={{ height: 72 }} />
@@ -328,6 +276,18 @@ const cards = () => {
     </SafeAreaView>
   );
 };
+//       <SafeAreaView style={styles.contentContainer}>
+//         <FlatList
+//           data={userRequests}
+//           keyExtractor={(item) => item.id.toString()}
+//           renderItem={renderItems}
+//         />
+//       </SafeAreaView>
+//       <View style={{ height: 72 }} />
+//       <StatusBar style="auto" />
+//     </SafeAreaView>
+//   );
+// };
 
 const styles = StyleSheet.create({
   container: {
@@ -366,6 +326,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  noRequestsContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  noRequestsText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "gray",
   },
 });
 

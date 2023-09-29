@@ -4,6 +4,11 @@ import Card from "../components/Card";
 import Search from "../components/Search";
 import { SearchBar } from "react-native-elements";
 import { Picker } from "@react-native-picker/picker";
+import rescue_agencies from "../components/firebaseinit";
+import {
+  fetchRescueAgencies,
+  addAgencyRequest,
+} from "../components/firebaseinit";
 import {
   StyleSheet,
   Text,
@@ -13,106 +18,111 @@ import {
   Image,
   Linking,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 
 const cards = () => {
-  const initialRescueAgencies = [
-    {
-      id: 1,
-      name: "Agency A",
-      disaster: "Earthquake",
-      location:
-        "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
-      numberOfTeams: 5,
-      contact: 9551398396,
-    },
-    {
-      id: 2,
-      name: "Agency B",
-      disaster: "Flood",
-      location:
-        "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
-      numberOfTeams: 3,
-      contact: 9551398396,
-    },
-    {
-      id: 3,
-      name: "Agency B",
-      disaster: "Flood",
-      location: "My House",
-      numberOfTeams: 3,
-      contact: 9551398396,
-    },
-    {
-      id: 4,
-      name: "Agency B",
-      disaster: "Flood",
-      location:
-        "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
-      numberOfTeams: 3,
-      contact: 9551398396,
-    },
-    {
-      id: 5,
-      name: "Agency B",
-      disaster: "Flood",
-      location:
-        "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
-      numberOfTeams: 3,
-      contact: 9551398396,
-    },
-    {
-      id: 6,
-      name: "Agency B",
-      disaster: "Flood",
-      location:
-        "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
-      numberOfTeams: 3,
-      contact: 9551398396,
-    },
-    {
-      id: 7,
-      name: "Agency B",
-      disaster: "Flood",
-      location:
-        "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
-      numberOfTeams: 3,
-      contact: 9551398396,
-    },
-    {
-      id: 8,
-      name: "Agency B",
-      disaster: "Flood",
-      location:
-        "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
-      numberOfTeams: 3,
-      contact: 9551398396,
-    },
-    {
-      id: 9,
-      name: "Agency B",
-      disaster: "Flood",
-      location:
-        "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
-      numberOfTeams: 3,
-      contact: 9551398396,
-    },
-    // Add more agencies as needed
-  ];
+  // const initialRescueAgencies = [
+  //   {
+  //     id: 1,
+  //     name: "Agency A",
+  //     disaster: "Earthquake",
+  //     location:
+  //       "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
+  //     numberOfTeams: 5,
+  //     contact: 9551398396,
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Agency B",
+  //     disaster: "Flood",
+  //     location:
+  //       "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
+  //     numberOfTeams: 3,
+  //     contact: 9551398396,
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Agency B",
+  //     disaster: "Flood",
+  //     location: "My House",
+  //     numberOfTeams: 3,
+  //     contact: 9551398396,
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "Agency B",
+  //     disaster: "Flood",
+  //     location:
+  //       "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
+  //     numberOfTeams: 3,
+  //     contact: 9551398396,
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "Agency B",
+  //     disaster: "Flood",
+  //     location:
+  //       "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
+  //     numberOfTeams: 3,
+  //     contact: 9551398396,
+  //   },
+  //   {
+  //     id: 6,
+  //     name: "Agency B",
+  //     disaster: "Flood",
+  //     location:
+  //       "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
+  //     numberOfTeams: 3,
+  //     contact: 9551398396,
+  //   },
+  //   {
+  //     id: 7,
+  //     name: "Agency B",
+  //     disaster: "Flood",
+  //     location:
+  //       "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
+  //     numberOfTeams: 3,
+  //     contact: 9551398396,
+  //   },
+  //   {
+  //     id: 8,
+  //     name: "Agency B",
+  //     disaster: "Flood",
+  //     location:
+  //       "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
+  //     numberOfTeams: 3,
+  //     contact: 9551398396,
+  //   },
+  //   {
+  //     id: 9,
+  //     name: "Agency B",
+  //     disaster: "Flood",
+  //     location:
+  //       "2, Kamarajapuram 2nd St, Kamarajapuram, Anakaputhur, Chennai, Tamil Nadu 600075",
+  //     numberOfTeams: 3,
+  //     contact: 9551398396,
+  //   },
+  //   // Add more agencies as needed
+  // ];
 
-  console.log("app executed");
-  const [allRescueAgencies, setAllRescueAgencies] = useState(
-    initialRescueAgencies
-  );
-  const [rescueAgencies, setRescueAgencies] = useState(initialRescueAgencies);
+  const [allRescueAgencies, setAllRescueAgencies] = useState([]);
+  const [rescueAgencies, setRescueAgencies] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedDisaster, setSelectedDisaster] = useState("All");
+  const [loading, setLoading] = useState(true);
+  const [requesting, setRequesting] = useState(false);
   // Fetch data or initialize it as needed
   useEffect(() => {
-    // You can fetch data here if needed
-    // For now, I'm initializing it with your sample data
-    setAllRescueAgencies(initialRescueAgencies);
-    setRescueAgencies(initialRescueAgencies);
+    const fetchData = async () => {
+      // Fetch the rescue agencies and wait for the result
+      const agencies = await fetchRescueAgencies();
+
+      setAllRescueAgencies(agencies);
+      setRescueAgencies(agencies);
+      setLoading(false);
+    };
+    fetchData();
   }, []);
 
   const searchFilterFunction = (text) => {
@@ -136,8 +146,8 @@ const cards = () => {
     if (disaster === "All") {
       setRescueAgencies(allRescueAgencies);
     } else {
-      const filteredAgencies = allRescueAgencies.filter(
-        (agency) => agency.disaster === disaster
+      const filteredAgencies = allRescueAgencies.filter((agency) =>
+        agency.disaster.includes(disaster)
       );
       setRescueAgencies(filteredAgencies);
     }
@@ -163,12 +173,25 @@ const cards = () => {
     );
   };
 
-  const handleRequestAlert = (agency) => {
-    // Implement the logic to send a request alert to the agency here
-    // You can use any notification service or API for this purpose
-    // For example, you might send a push notification to the agency's app or server
-    // You can also display a confirmation message to the user
-    alert(`Request sent to ${agency.name}`);
+  const handleRequestAlert = async (agency) => {
+    try {
+      setLoading(true); // Set requesting to true when starting the request
+
+      // Call the addAgencyRequest function, which handles the request and returns a promise
+      await addAgencyRequest(agency);
+
+      // After the request is complete, set requesting back to false
+      setLoading(false);
+
+      alert(`Request sent to ${agency.name}`);
+    } catch (error) {
+      console.error("Error sending request alert:", error);
+      setLoading(false); // Set requesting back to false in case of an error
+    }
+  };
+
+  const handleGeneralRequest = () => {
+    alert(`Request sent to nearby Agencies`);
   };
 
   const renderItems = ({ item }) => (
@@ -311,19 +334,51 @@ const cards = () => {
             {/* Add more disaster types as needed */}
           </Picker>
         </View>
+        <TouchableOpacity onPress={() => handleGeneralRequest()}>
+          <View
+            style={{
+              backgroundColor: "#f62e2e",
+              padding: 10,
+              borderRadius: 5,
+              margin: 10,
+            }}
+          >
+            <Text style={{ color: "white", textAlign: "center" }}>
+              Send request to nearby Agencies
+            </Text>
+          </View>
+        </TouchableOpacity>
       </View>
-      <SafeAreaView style={styles.contentContainer}>
-        <FlatList
-          data={rescueAgencies}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderItems}
-        />
-      </SafeAreaView>
+      {loading ? ( // Display loading indicator if loading is true
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#000000" />
+        </View>
+      ) : (
+        <SafeAreaView style={styles.contentContainer}>
+          <FlatList
+            data={rescueAgencies}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={renderItems}
+          />
+        </SafeAreaView>
+      )}
       <View style={{ height: 72 }} />
       <StatusBar style="auto" />
     </SafeAreaView>
   );
 };
+//       <SafeAreaView style={styles.contentContainer}>
+//         <FlatList
+//           data={rescueAgencies}
+//           keyExtractor={(item) => item.id.toString()}
+//           renderItem={renderItems}
+//         />
+//       </SafeAreaView>
+//       <View style={{ height: 72 }} />
+//       <StatusBar style="auto" />
+//     </SafeAreaView>
+//   );
+// };
 
 const styles = StyleSheet.create({
   container: {
@@ -357,6 +412,11 @@ const styles = StyleSheet.create({
     elevation: 1,
     borderBottomStartRadius: 15,
     borderBottomEndRadius: 15,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
