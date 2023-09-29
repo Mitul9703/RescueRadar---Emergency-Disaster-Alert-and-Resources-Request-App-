@@ -19,6 +19,10 @@ This application is a lifeline during natural disasters and emergencies, enablin
 - **Collaboration:** Connect with other agencies for collaboration and resource sharing.
 - **Track Rescue Teams:** Real-time tracking of rescue teams on a map for efficient coordination.
 
+## Demo
+
+### Mobile App - For Victims
+
 
 
 ## How to Run the App Locally
@@ -37,7 +41,7 @@ Ensure you have the following installed:
 
 1. **Clone the Repository:**
    ```shell
-   git clone https://github.com/your-username/your-project-name.git
+   git clone https://github.com/Mitul9703/Emergency-Disaster-Alert-and-Resources-Request-App-.git
    cd your-project-name
    ```
 
